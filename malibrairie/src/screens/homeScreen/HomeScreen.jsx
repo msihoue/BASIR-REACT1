@@ -1,27 +1,81 @@
-import { Link } from 'react-router-dom';
-import data from '../../data';
+import { useEffect, useReducer } from 'react';
+// import { Link } from 'react-router-dom';
+import axios from 'axios';
+import logger from 'use-reducer-logger';
+import ProductCard from '../../components/productCard/ProductCard';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { Helmet } from 'react-helmet-async';
+import LoadingBox from '../../components/LoadingBox';
+import MessageBox from '../../components/MessageBox';
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'FETCH_REQUEST':
+            return { ...state, loading: true };
+        case 'FETCH_SUCCESS':
+            return { ...state, loading: false, products: action.payload };
+        case 'FETCH_FAIL':
+            return { ...state, loading: false, error: action.payload };
+        default:
+            return state;
+    }
+};
 
 const HomeScreen = () => {
+    const [{ loading, error, products }, dispatch] = useReducer(
+        logger(reducer),
+        {
+            products: [],
+            loading: true,
+            error: '',
+        },
+    );
+    // const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            dispatch({
+                type: 'FETCH_REQUEST',
+            });
+            try {
+                const result = await axios.get('/api/products');
+                dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
+            } catch (err) {
+                dispatch({
+                    type: 'FETCH_FAIL',
+                    payload: err.message,
+                });
+            }
+            // setProducts(result.data);
+        };
+        fetchData();
+    }, []);
     return (
         <section>
+            <Helmet>
+                <title>MALIBRAIRIE</title>
+            </Helmet>
             <h1>Meilleurs Produits</h1>
             <div className="products">
-                {data.products.map(product => (
-                    <div key={product.slug} className="product">
-                        <div className="product_image">
-                            <Link to={`/${product.slug}`}>
-                                <img src={product.image} alt={product.name} />
-                            </Link>
-                        </div>
-                        <div className="product_info">
-                            <Link to={`/${product.slug}`}>
-                                <p>{product.name}</p>
-                                <p>{product.price}</p>
-                            </Link>
-                        </div>
-                        <button>AJOUTER AU PANIER</button>
-                    </div>
-                ))}
+                {loading ? (
+                    <LoadingBox />
+                ) : error ? (
+                    <MessageBox variant="danger">{error}</MessageBox>
+                ) : (
+                    <Row>
+                        {products.map(product => (
+                            <Col
+                                key={product.slug}
+                                sm={6}
+                                md={4}
+                                lg={3}
+                                className="mb-3">
+                                <ProductCard product={product} />
+                            </Col>
+                        ))}
+                    </Row>
+                )}
             </div>
         </section>
     );
