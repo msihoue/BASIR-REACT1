@@ -51,6 +51,7 @@ const HomeScreen = () => {
         };
         fetchData();
     }, []);
+
     return (
         <section>
             <Helmet>

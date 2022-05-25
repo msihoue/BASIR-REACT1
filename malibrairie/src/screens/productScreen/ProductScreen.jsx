@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Badge from 'react-bootstrap/Badge';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Rating from '../../components/Rating';
 import Button from 'react-bootstrap/Button';
 import { Helmet } from 'react-helmet-async';
@@ -30,6 +30,7 @@ const reducer = (state, action) => {
 const ProductScreen = () => {
     const params = useParams();
     const { slug } = params;
+    const navigate = useNavigate();
 
     const [{ loading, error, product }, dispatch] = useReducer(reducer, {
         product: [],
@@ -40,19 +41,13 @@ const ProductScreen = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            dispatch({
-                type: 'FETCH_REQUEST',
-            });
+            dispatch({ type: 'FETCH_REQUEST' });
             try {
-                const result = await axios.get(`/api/slug/${slug}`);
+                const result = await axios.get(`/api/products/slug/${slug}`);
                 dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
             } catch (err) {
-                dispatch({
-                    type: 'FETCH_FAIL',
-                    payload: getError(err),
-                });
+                dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
             }
-            // setProducts(result.data);
         };
         fetchData();
     }, [slug]);
@@ -71,6 +66,7 @@ const ProductScreen = () => {
             type: 'CART_ADD_ITEM',
             payload: { ...product, quantity },
         });
+        navigate('/cart');
     };
 
     return loading ? (
