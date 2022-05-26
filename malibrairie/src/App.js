@@ -18,7 +18,7 @@ import PaymentMethodScreen from './screens/paymentMethod/PaymentMethodScreen';
 import PlaceOrderScreen from './screens/placeOrder/PlaceOrderScreen';
 import OrderScreen from './screens/orderScreen/OrderScreen';
 import OrderHistoryScreen from './screens/orderHistory/OrderHistoryScreen';
-
+import ProfileScreen from './screens/profile/ProfileScreen';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
 function App() {
@@ -30,6 +30,7 @@ function App() {
         localStorage.removeItem('userInfo');
         localStorage.removeItem('shippingAddress');
         localStorage.removeItem('paymentMethod');
+        window.location.href = '/signin';
     };
 
     return (
@@ -112,6 +113,9 @@ function App() {
                             <Route
                                 path="/orderhistory"
                                 element={<OrderHistoryScreen />}></Route>
+                            <Route
+                                path="/profile"
+                                element={<ProfileScreen />}></Route>
                         </Routes>
                     </Container>
                 </main>
